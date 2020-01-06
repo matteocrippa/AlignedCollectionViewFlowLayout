@@ -241,6 +241,12 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
             if let newFrame = layoutAttributesForItem(at: indexPath)?.frame {
                 layoutAttributes.frame = newFrame
             }
+        } else if layoutAttributes.representedElementCategory == .supplementaryView {
+            if layoutAttributes.representedElementKind == UICollectionElementKindSectionHeader {
+                if let newFrame = layoutAttributesForSupplementaryView(ofKind: UICollectionElementKindSectionHeader, at: layoutAttributes.indexPath)?.frame {
+                    layoutAttributes.frame = newFrame
+                }
+            }
         }
     }
     
@@ -486,4 +492,46 @@ fileprivate extension UICollectionViewLayoutAttributes {
         align(toAlignmentAxis: alignmentAxis)
     }
     
+}
+
+private var headerKey: UInt8 = 0
+extension AlignedCollectionViewFlowLayout {
+    var headerHeight: CVHeader {
+        get {
+            return associatedObject(base: self, key: &headerKey)
+            { return CVHeader() }
+        }
+        set { associateObject(base: self, key: &headerKey, value: newValue) }
+    }
+    
+    func associatedObject<ValueType: AnyObject>(
+        base: AnyObject,
+        key: UnsafePointer<UInt8>,
+        initialiser: () -> ValueType)
+        -> ValueType {
+            if let associated = objc_getAssociatedObject(base, key)
+                as? ValueType { return associated }
+            let associated = initialiser()
+            objc_setAssociatedObject(base, key, associated,
+                                     .OBJC_ASSOCIATION_RETAIN)
+            return associated
+    }
+    func associateObject<ValueType: AnyObject>(
+        base: AnyObject,
+        key: UnsafePointer<UInt8>,
+        value: ValueType) {
+        objc_setAssociatedObject(base, key, value,
+                                 .OBJC_ASSOCIATION_RETAIN)
+    }
+    
+    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        guard let attributes = super.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath)?.copy() as? UICollectionViewLayoutAttributes else {
+            return nil
+        }
+        
+        let yPos:CGFloat = layoutAttributesForItem(at: indexPath)!.frame.origin.y - headerHeight.value
+        attributes.frame = CGRect(x: 0.0, y: yPos, width: (collectionView?.frame.width)!, height: headerHeight.value)
+        
+        return attributes
+    }
 }
