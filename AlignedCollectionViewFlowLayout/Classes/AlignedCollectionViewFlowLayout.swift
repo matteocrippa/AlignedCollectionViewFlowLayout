@@ -84,16 +84,16 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     /// Determines how the cells are horizontally aligned in a row.
     /// - Note: The default is `.justified`.
     public var horizontalAlignment: HorizontalAlignment = .justified
-
+    
     /// Determines how the cells are vertically aligned in a row.
     /// - Note: The default is `.center`.
     public var verticalAlignment: VerticalAlignment = .center
-
+    
     /// The `horizontalAlignment` with its layout direction specifics resolved,
     /// i.e. `.leading` and `.trailing` alignments are mapped to `.left` or `right`,
     /// depending on the current layout direction.
     fileprivate var effectiveHorizontalAlignment: EffectiveHorizontalAlignment {
-
+        
         var trivialMapping: [HorizontalAlignment: EffectiveHorizontalAlignment] {
             return [
                 .left: .left,
@@ -101,9 +101,9 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
                 .justified: .justified
             ]
         }
-
+        
         let layoutDirection = UIApplication.shared.userInterfaceLayoutDirection
-
+        
         switch layoutDirection {
         case .leftToRight:
             switch horizontalAlignment {
@@ -114,7 +114,7 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
             default:
                 break
             }
-
+            
         case .rightToLeft:
             switch horizontalAlignment {
             case .leading:
@@ -125,7 +125,7 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
                 break
             }
         }
-
+        
         // It's safe to force-unwrap as `.leading` and `.trailing` are covered
         // above and the `trivialMapping` dictionary contains all other keys.
         return trivialMapping[horizontalAlignment]!
@@ -242,8 +242,8 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
                 layoutAttributes.frame = newFrame
             }
         } else if layoutAttributes.representedElementCategory == .supplementaryView {
-            if layoutAttributes.representedElementKind == UICollectionElementKindSectionHeader {
-                if let newFrame = layoutAttributesForSupplementaryView(ofKind: UICollectionElementKindSectionHeader, at: layoutAttributes.indexPath)?.frame {
+            if layoutAttributes.representedElementKind == UICollectionView.elementKindSectionHeader {
+                if let newFrame = layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: layoutAttributes.indexPath)?.frame {
                     layoutAttributes.frame = newFrame
                 }
             }
@@ -492,6 +492,10 @@ fileprivate extension UICollectionViewLayoutAttributes {
         align(toAlignmentAxis: alignmentAxis)
     }
     
+}
+
+class CVHeader {
+    var value: CGFloat = 30.0
 }
 
 private var headerKey: UInt8 = 0
